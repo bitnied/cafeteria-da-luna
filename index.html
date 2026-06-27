@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Cafeteria da Luna ☕</title>
+  <meta name="theme-color" content="#6f4e37" />
+
+  <!-- PWA / iOS adicionar à tela inicial -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Cafeteria da Luna" />
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>☕ Cafeteria da Luna</h1>
+    <p class="subtitle" id="subtitle">Escolha suas bebidas favoritas!</p>
+  </header>
+
+  <!-- ===== CARDÁPIO ===== -->
+  <main id="view-cardapio" class="view active">
+    <div id="cardapio-grid" class="grid"></div>
+  </main>
+
+  <!-- ===== ESTOQUE ===== -->
+  <main id="view-estoque" class="view">
+    <div class="estoque-wrap">
+      <h2>📦 Controle de Estoque</h2>
+      <p class="hint">Toque em − ou + para mudar a quantidade de cápsulas.</p>
+      <div id="estoque-list" class="estoque-list"></div>
+
+      <button class="btn-add" id="btn-add-capsula">➕ Adicionar nova cápsula</button>
+
+      <h3 class="other-title">🥤 Outras bebidas</h3>
+      <p class="hint">Bebidas sem cápsula (água, cerveja...). Aparecem sempre no cardápio.</p>
+      <div id="outras-list" class="estoque-list"></div>
+      <button class="btn-add" id="btn-add-outra">➕ Adicionar outra bebida</button>
+
+      <div class="backup-box">
+        <h3>💾 Backup</h3>
+        <p class="hint">As alterações ficam salvas neste aparelho. Faça um backup de vez em quando.</p>
+        <div class="backup-btns">
+          <button id="btn-export">⬇️ Salvar backup</button>
+          <button id="btn-import">⬆️ Restaurar backup</button>
+          <button id="btn-reset" class="danger">↺ Restaurar padrão</button>
+        </div>
+        <input type="file" id="file-import" accept="application/json" hidden />
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== NAV ===== -->
+  <nav class="bottomnav">
+    <button class="nav-btn active" data-view="cardapio">📋<span>Cardápio</span></button>
+    <button class="nav-btn" data-view="estoque">📦<span>Estoque</span></button>
+  </nav>
+
+  <!-- ===== BOTÃO PEDIR (flutuante) ===== -->
+  <button id="btn-pedir" class="fab" hidden>
+    🛎️ Pedir <span class="fab-count" id="fab-count">0</span>
+  </button>
+
+  <!-- ===== RESUMO DO PEDIDO (overlay) ===== -->
+  <div id="overlay-pedido" class="overlay" hidden>
+    <div class="ticket">
+      <div class="ticket-top">
+        <span class="ticket-cup">☕</span>
+        <h2>Pedido da Luna</h2>
+        <span class="ticket-num" id="ticket-num">#001</span>
+      </div>
+      <div class="ticket-divider"></div>
+      <ul id="ticket-list" class="ticket-list"></ul>
+      <div class="ticket-divider"></div>
+      <p class="ticket-total" id="ticket-total"></p>
+      <p class="ticket-msg">Luna, prepare com muito carinho! 💛</p>
+      <div class="ticket-actions">
+        <button id="btn-voltar" class="ghost">← Voltar</button>
+        <button id="btn-confirmar" class="primary">✅ Entregar pedido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CONFIRMAÇÃO ENTREGUE ===== -->
+  <div id="overlay-feito" class="overlay" hidden>
+    <div class="done-card">
+      <div class="done-emoji">🎉</div>
+      <h2>Pedido entregue!</h2>
+      <p>Bom apetite! 😋</p>
+      <button id="btn-novo" class="primary">Novo pedido</button>
+    </div>
+  </div>
+
+  <!-- ===== EDITAR ITEM (overlay) ===== -->
+  <div id="overlay-edit" class="overlay" hidden>
+    <div class="edit-card">
+      <h2 id="edit-title">Editar</h2>
+      <label>Nome
+        <input type="text" id="edit-nome" placeholder="Nome da bebida" />
+      </label>
+      <label>Emoji
+        <input type="text" id="edit-emoji" maxlength="4" placeholder="☕" />
+      </label>
+      <label class="check-row">
+        <input type="checkbox" id="edit-cafe" /> Tem café?
+      </label>
+      <label id="edit-intensidade-wrap">Intensidade do café
+        <select id="edit-intensidade">
+          <option value="1">1 — bem suave</option>
+          <option value="2">2 — suave</option>
+          <option value="3">3 — médio</option>
+          <option value="4">4 — forte</option>
+          <option value="5">5 — bem forte</option>
+        </select>
+      </label>
+      <label id="edit-capsulas-wrap">Cápsulas por bebida
+        <input type="number" id="edit-capsulas" min="1" max="5" value="1" />
+      </label>
+      <label>Quantidade em estoque
+        <input type="number" id="edit-qtd" min="0" value="0" />
+      </label>
+      <div class="edit-actions">
+        <button id="btn-edit-cancel" class="ghost">Cancelar</button>
+        <button id="btn-edit-del" class="danger">Excluir</button>
+        <button id="btn-edit-save" class="primary">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="110" fill="#6f4e37"/>
+  <circle cx="256" cy="250" r="170" fill="#f5ead8"/>
+  <!-- xícara -->
+  <path d="M150 210 h180 v60 a90 90 0 0 1 -180 0 z" fill="#6f4e37"/>
+  <path d="M330 225 h28 a34 34 0 0 1 0 68 h-18" fill="none" stroke="#6f4e37" stroke-width="20"/>
+  <ellipse cx="240" cy="330" rx="120" ry="22" fill="#4a3528" opacity="0.25"/>
+  <!-- vapor -->
+  <path d="M210 150 q-18 -22 0 -44 q18 -22 0 -44" fill="none" stroke="#6f4e37" stroke-width="14" stroke-linecap="round"/>
+  <path d="M260 150 q-18 -22 0 -44 q18 -22 0 -44" fill="none" stroke="#6f4e37" stroke-width="14" stroke-linecap="round"/>
+</svg>
