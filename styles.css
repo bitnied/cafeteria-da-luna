@@ -59,6 +59,22 @@ button { font-family: inherit; cursor: pointer; border: none; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; }
 }
 
+.cat-title {
+  grid-column: 1 / -1;
+  margin: 8px 2px 0;
+  font-size: 1.25rem;
+  color: var(--coffee-dark);
+  border-bottom: 3px dashed var(--accent);
+  padding-bottom: 6px;
+}
+.cat-title:first-child { margin-top: 0; }
+
+.ml-tag {
+  font-size: .8rem; color: var(--coffee);
+  background: var(--cream); border-radius: 20px;
+  padding: 1px 10px; font-weight: bold;
+}
+
 .card {
   background: var(--cream-2);
   border-radius: var(--radius);
@@ -210,6 +226,7 @@ button { font-family: inherit; cursor: pointer; border: none; }
 .ticket-list li { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; }
 .ticket-list .t-emoji { font-size: 1.5rem; }
 .ticket-list .t-name { flex: 1; }
+.ticket-list .t-name small { color: #8a7560; font-size: .8rem; }
 .ticket-list .t-qty { font-weight: bold; background: var(--coffee); color: var(--cream-2); border-radius: 12px; padding: 2px 10px; }
 .ticket-total { text-align: center; font-weight: bold; font-size: 1.1rem; margin: 4px 0; }
 .ticket-msg { text-align: center; color: #8a7560; font-size: .9rem; margin: 2px 0 14px; }

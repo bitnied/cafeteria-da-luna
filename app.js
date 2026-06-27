@@ -7,19 +7,19 @@ function dadosPadrao() {
     pedidoNum: 1,
     // Bebidas com cápsula (controle de estoque)
     capsulas: [
-      { id: "c1", nome: "Chococino", emoji: "🍫", cafe: false, intensidade: 1, capsulas: 1, qtd: 10 },
-      { id: "c2", nome: "Mochaccino Canela", emoji: "☕", cafe: true, intensidade: 3, capsulas: 1, qtd: 2 },
-      { id: "c3", nome: "KitKat", emoji: "🍫", cafe: false, intensidade: 1, capsulas: 1, qtd: 8 },
-      { id: "c4", nome: "Espresso", emoji: "☕", cafe: true, intensidade: 5, capsulas: 1, qtd: 30 },
-      { id: "c5", nome: "Galak", emoji: "🤍", cafe: false, intensidade: 1, capsulas: 1, qtd: 3 },
-      { id: "c6", nome: "Alpino", emoji: "🍫", cafe: false, intensidade: 1, capsulas: 1, qtd: 10 },
+      { id: "c1", nome: "Chococino", emoji: "🍫", cafe: false, intensidade: 1, capsulas: 1, ml: 210, qtd: 10 },
+      { id: "c2", nome: "Mochaccino Canela", emoji: "☕", cafe: true, intensidade: 3, capsulas: 1, ml: 200, qtd: 2 },
+      { id: "c3", nome: "KitKat", emoji: "🍫", cafe: false, intensidade: 1, capsulas: 1, ml: 210, qtd: 8 },
+      { id: "c4", nome: "Espresso", emoji: "☕", cafe: true, intensidade: 5, capsulas: 1, ml: 40, qtd: 30 },
+      { id: "c5", nome: "Galak", emoji: "🤍", cafe: false, intensidade: 1, capsulas: 1, ml: 210, qtd: 3 },
+      { id: "c6", nome: "Alpino", emoji: "🍫", cafe: false, intensidade: 1, capsulas: 1, ml: 210, qtd: 10 },
     ],
     // Bebidas sem cápsula (não controlam estoque por padrão)
     outras: [
-      { id: "o1", nome: "Água", emoji: "💧" },
-      { id: "o2", nome: "Água com gás", emoji: "🫧" },
-      { id: "o3", nome: "Tônica", emoji: "🍸" },
-      { id: "o4", nome: "Cerveja", emoji: "🍺" },
+      { id: "o1", nome: "Água", emoji: "💧", ml: 300 },
+      { id: "o2", nome: "Água com gás", emoji: "🫧", ml: 300 },
+      { id: "o3", nome: "Tônica", emoji: "🍸", ml: 250 },
+      { id: "o4", nome: "Cerveja", emoji: "🍺", ml: 350 },
     ],
   };
 }
@@ -48,12 +48,40 @@ function itemPorId(id) {
 function ehCapsula(item) { return dados.capsulas.includes(item); }
 
 /* ====== RENDER CARDÁPIO ====== */
+// Categorias na ordem em que aparecem no cardápio
+const CATEGORIAS = ["☕ Cafés", "🍫 Achocolatados", "🥤 Outras bebidas"];
+function categoriaDe(item) {
+  if (!ehCapsula(item)) return "🥤 Outras bebidas";
+  return item.cafe ? "☕ Cafés" : "🍫 Achocolatados";
+}
+
 function renderCardapio() {
   const grid = $("#cardapio-grid");
   grid.innerHTML = "";
-  const todos = [...dados.capsulas, ...dados.outras];
 
-  todos.forEach((item) => {
+  // agrupa por categoria
+  const grupos = {};
+  [...dados.capsulas, ...dados.outras].forEach((item) => {
+    const c = categoriaDe(item);
+    (grupos[c] = grupos[c] || []).push(item);
+  });
+
+  CATEGORIAS.forEach((cat) => {
+    const itens = grupos[cat];
+    if (!itens || !itens.length) return;
+    // ordem alfabética dentro da categoria
+    itens.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+
+    const titulo = document.createElement("h2");
+    titulo.className = "cat-title";
+    titulo.textContent = cat;
+    grid.appendChild(titulo);
+
+    itens.forEach((item) => grid.appendChild(cardDe(item)));
+  });
+}
+
+function cardDe(item) {
     const cap = ehCapsula(item);
     const max = cap ? Math.floor(item.qtd / (item.capsulas || 1)) : Infinity;
     const sel = carrinho[item.id] || 0;
@@ -81,11 +109,14 @@ function renderCardapio() {
       stockTag = `<div class="stock-tag${low ? " low" : ""}">${item.qtd} cápsula(s)${item.capsulas > 1 ? " · usa " + item.capsulas + "/copo" : ""}</div>`;
     }
 
+    const mlTag = item.ml ? `<div class="ml-tag">${item.ml} ml</div>` : "";
+
     card.innerHTML = `
       ${esgotado ? '<span class="esgotado-tag">Esgotado</span>' : ""}
       <div class="card-emoji">${item.emoji}</div>
       <div class="card-name">${item.nome}</div>
       <div class="badges">${badges}</div>
+      ${mlTag}
       ${stockTag}
       <div class="stepper">
         <button class="minus" ${sel <= 0 ? "disabled" : ""}>−</button>
@@ -95,8 +126,7 @@ function renderCardapio() {
 
     card.querySelector(".plus").addEventListener("click", () => mudarCarrinho(item.id, 1, max));
     card.querySelector(".minus").addEventListener("click", () => mudarCarrinho(item.id, -1, max));
-    grid.appendChild(card);
-  });
+    return card;
 }
 
 function mudarCarrinho(id, delta, max) {
@@ -138,6 +168,7 @@ function linhaEstoque(item, cap) {
   } else {
     sub = "sempre disponível";
   }
+  if (item.ml) sub += " · " + item.ml + " ml";
   row.innerHTML = `
     <div class="row-emoji">${item.emoji}</div>
     <div class="row-info">
@@ -166,6 +197,7 @@ function abrirEdit(item, cap, novo = false) {
   $("#edit-title").textContent = novo ? (cap ? "Nova cápsula" : "Nova bebida") : "Editar " + item.nome;
   $("#edit-nome").value = item.nome || "";
   $("#edit-emoji").value = item.emoji || (cap ? "☕" : "🥤");
+  $("#edit-ml").value = item.ml || "";
   $("#edit-cafe").checked = !!item.cafe;
   $("#edit-intensidade").value = item.intensidade || 3;
   $("#edit-capsulas").value = item.capsulas || 1;
@@ -195,6 +227,8 @@ $("#btn-edit-save").addEventListener("click", () => {
   if (!nome) { alert("Dê um nome para a bebida 🙂"); return; }
   item.nome = nome;
   item.emoji = $("#edit-emoji").value.trim() || (cap ? "☕" : "🥤");
+  const ml = parseInt($("#edit-ml").value);
+  item.ml = ml > 0 ? ml : 0;
   if (cap) {
     item.cafe = $("#edit-cafe").checked;
     item.intensidade = parseInt($("#edit-intensidade").value) || 1;
@@ -237,7 +271,7 @@ function abrirPedido() {
     total += q;
     const li = document.createElement("li");
     li.innerHTML = `<span class="t-emoji">${item.emoji}</span>
-      <span class="t-name">${item.nome}</span>
+      <span class="t-name">${item.nome}${item.ml ? ` <small>${item.ml} ml</small>` : ""}</span>
       <span class="t-qty">x${q}</span>`;
     list.appendChild(li);
   });
@@ -275,7 +309,7 @@ $$(".nav-btn").forEach((btn) => {
     $$(".nav-btn").forEach((b) => b.classList.toggle("active", b === btn));
     $$(".view").forEach((view) => view.classList.remove("active"));
     $("#view-" + v).classList.add("active");
-    $("#subtitle").textContent = v === "estoque" ? "Gerencie suas cápsulas 📦" : "Escolha suas bebidas favoritas!";
+    $("#subtitle").textContent = v === "estoque" ? "Gerencie suas cápsulas 📦" : "Cardápio";
     atualizarFab();
     window.scrollTo(0, 0);
   });

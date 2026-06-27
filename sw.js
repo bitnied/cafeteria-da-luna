@@ -1,5 +1,5 @@
 /* Service worker simples: cache para uso offline no tablet */
-const CACHE = "cafeteria-luna-v1";
+const CACHE = "cafeteria-luna-v2";
 const ASSETS = [
   "./",
   "./index.html",
