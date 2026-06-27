@@ -350,5 +350,11 @@ renderEstoque();
 atualizarFab();
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js").catch(() => {});
+  // se já havia um SW controlando, recarrega quando a versão nova assumir
+  const tinhaControle = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (tinhaControle) window.location.reload();
+  });
+  // updateViaCache:"none" garante que o próprio sw.js nunca venha do cache do navegador
+  navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(() => {});
 }

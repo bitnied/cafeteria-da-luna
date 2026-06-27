@@ -1,5 +1,6 @@
-/* Service worker simples: cache para uso offline no tablet */
-const CACHE = "cafeteria-luna-v2";
+/* Service worker: network-first (sempre busca a versão nova quando online,
+   cai no cache só quando offline). Evita ficar preso em versão antiga. */
+const CACHE = "cafeteria-luna-v3";
 const ASSETS = [
   "./",
   "./index.html",
@@ -22,13 +23,12 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
   e.respondWith(
-    caches.match(e.request).then((cached) =>
-      cached ||
-      fetch(e.request).then((res) => {
+    fetch(e.request)
+      .then((res) => {
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
         return res;
-      }).catch(() => cached)
-    )
+      })
+      .catch(() => caches.match(e.request)) // sem internet → usa o cache
   );
 });
